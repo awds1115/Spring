@@ -7,7 +7,26 @@
 <meta charset="UTF-8">
 <title>게시물 목록</title>
 </head>
+<style>
+td, th{ border:1px solid blue;}
+</style>
 <body>
-
+<table style='border-collapse:collapse;'>
+<thead>
+	<tr><th>게시물번호</th><th>제목</th><th>작성자</th><th>작성시각</th><th>조회수</th></tr>
+</thead>
+<tbody>
+<c:forEach var="post" items="${alPost}">
+	<tr onclick='document.location="/ncs7/view?id=${post.id}"'>
+		<td>${post.id}</td>
+		<td>${post.title}</td>
+		<td>${post.name}</td>
+		<td>${post.created}</td>
+		<td>${post.hit}</td>
+	</tr>
+</c:forEach>
+</tbody>
+</table>
+<input type=button value='작성하기' onclick='document.location="/ncs7/compose"'>
 </body>
 </html>
