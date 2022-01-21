@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- mapper을 써야 인터페이스를 찾아낼 수 있음 -->
+<mapper namespace="com.human.cafe.iCafe"> 
+<select id="getMenuList" resultType="com.human.cafe.Menu">
+	select code,name,price from menu order by code
+</select>
+<insert id="insertMenu">
+	insert into menu values(seq_menu.nextval,#{param1},#{param2})
+</insert>
+<update id="updateMenu">
+	update menu set name=#{param2}, price=#{param3} where code=#{param1}
+</update>
+<delete id="deleteMenu">
+	delete from menu where code=#{param1}
+</delete>
+</mapper> 
