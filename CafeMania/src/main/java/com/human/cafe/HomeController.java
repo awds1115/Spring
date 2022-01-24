@@ -37,6 +37,7 @@ public class HomeController {
 //		ArrayList<Menu> ml=cafe.getMenuList();
 //		System.out.println("Menu length:"+ ml.size());
 		model.addAttribute("ml",cafe.getMenuList());
+		model.addAttribute("sl",cafe.getSales());
 		return "home";
 	}
 	@ResponseBody // 리턴을 했을때 그냥이동이 아닌 data를 이동시킨다.
@@ -108,5 +109,54 @@ public class HomeController {
 		}
 		return retval;
 	}
-	
+	@ResponseBody
+	@RequestMapping(value="/insertSales",method=RequestMethod.POST,
+					produces="application/json; charset=utf-8")
+	public String insertSales(HttpServletRequest hsr) {
+		String retval="";
+		try {
+		int menu_code=Integer.parseInt(hsr.getParameter("menu_code"));
+		int qty=Integer.parseInt(hsr.getParameter("qty"));
+		int total=Integer.parseInt(hsr.getParameter("total"));
+		String mobile=hsr.getParameter("mobile");
+		
+		iCafe cafe=sqlSession.getMapper(iCafe.class);
+		cafe.insertSales(menu_code, qty, total, mobile);
+		retval="ok";
+		} catch(Exception e) {
+			retval="fail";
+		}
+		return retval;
+	}
+	@ResponseBody
+	@RequestMapping(value="/SalesMenu",method=RequestMethod.POST,
+			produces="application/json;charset=utf-8")
+	public String SalesMenu() {
+		iCafe cafe=sqlSession.getMapper(iCafe.class);
+		ArrayList<Sales> ml=cafe.SalesMenu();
+		JSONArray ja=new JSONArray();
+		for(int i=0; i<ml.size(); i++) {
+			JSONObject jo=new JSONObject();
+			jo.put("name",ml.get(i).getName());
+			jo.put("total", ml.get(i).getTotal());
+			ja.add(jo);
+		}
+		return ja.toString(); // JSON format data
+	}
+	@ResponseBody
+	@RequestMapping(value="/SalesMobile",method=RequestMethod.POST,
+			produces="application/json;charset=utf-8")
+	public String SalesMobile() {
+		iCafe cafe=sqlSession.getMapper(iCafe.class);
+		ArrayList<Sales> ml=cafe.SalesMobile();
+		JSONArray ja=new JSONArray();
+		for(int i=0; i<ml.size(); i++) {
+			JSONObject jo=new JSONObject();
+			jo.put("mobile",ml.get(i).getName());
+			jo.put("total", ml.get(i).getTotal());
+			ja.add(jo);
+		}
+		return ja.toString(); // JSON format data
+	}
+
 }

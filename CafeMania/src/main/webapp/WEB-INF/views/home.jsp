@@ -43,8 +43,12 @@
 	<td style='border:1px solid black;' valign=top>
 		<table>
 <%-- 		<caption>판매내역</caption> --%>
-		<tr style='height:30px;'><td align=center>매출내역</td></tr>
-		<tr><td><select id=selSales style='width:231px' size=17></select></td></tr>
+		<tr style='height:30px;'><td align=center>매출내역<button id=btnSummary>Summary</button></td></tr>
+		<tr><td><select id=selSales style='width:300px' size=17>
+<c:forEach var="sales" items="${sl}">
+			<option>${sales.mobile}, ${sales.name}, x${sales.qty}, ${sales.total}, ${sales.sold_time}</option>
+</c:forEach>
+		</select></td></tr>
 		</table>
 	</td>
 </tr>
@@ -66,11 +70,52 @@
 		</table>
 	</td>
 </table>
+</div>
+<div style="display:none" id=dlgSales>
+<table>
+<tr>
+	<td>
+		<select style='width:200px' size=10 id=SalesMenu> <!-- 메뉴별 매출 -->
+		</select>
+	</td>
+	<td>
+		<select style='width:200px' size=10 id=SalesMobile> <!-- 고객별 매출 -->
+		</select>
+	</td>
+</tr>
+</table>
+</div>
 </body>
 <script src='https://code.jquery.com/jquery-3.5.0.js'></script>
 <script src='https://code.jquery.com/ui/1.13.0/jquery-ui.js'></script>
 <script>
 $(document)
+.on('click','#btnSummary',function(){
+	$('#dlgSales').dialog({
+		title:'매출 요약(메뉴별/고객별)',
+		modal:true,
+		width:500,
+		open:function(){
+			$.post("/cafe/SalesMenu",{},function(txt){
+				$('#SalesMenu').empty();
+			for(i=0; i<txt.length; i++){
+				let str='<option>'+txt[i]['name']+', '+txt[i]['total']+'</option>';
+				$('#SalesMenu').append(str);
+				}
+			},'json');
+			$.post("/cafe/SalesMobile",{},function(txt){
+				$('#SalesMoblie').empty();
+			for(i=0; i<txt.length; i++){
+				let str='<option>'+txt[i]['mobile']+', '+txt[i]['total']+'</option>';
+				$('#SalesMobile').append(str);
+			}
+			},'json');
+		},
+		close:function(){
+
+		}
+	});
+})
 .on('click','#selMenu option',function(){
 	$('#code').val($(this).val());  // 코드값이 나옴(밸류값)
 	let txt=$(this).text();  // 이름,가격이 써져있는 text값이 나옴
@@ -107,8 +152,17 @@ $(document)
 	$('#selOrder option').each(function(){
 		let str='<option>'+$('#mobile').val()+' '+$(this).text()+'</option>'
 		$('#selSales').append(str);
+		str=$(this).text();
+		let ar=str.split(' ');   // 메뉴이름, x수량, 금액 
+		let oParam={mobile:$('#mobile').val(),menu_code:$(this).val(),
+					qty:ar[1].substr(1), total:ar[2]};
+		console.log(oParam);
+		$.post('/cafe/insertSales',oParam,function(txt){
+			if(txt=='ok'){
+			} else{
+			}
+		},'text');
 	});
-// 	AJAX호출로 Database에 주문내역 저장 by calling $.post('');
 	return false;
 })
 .on('click','#btnCancel',function(){
